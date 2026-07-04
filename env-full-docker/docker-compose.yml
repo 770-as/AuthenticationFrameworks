@@ -1,0 +1,37 @@
+# Full environment injection — every login var explicit in compose + env_file.
+# Run from parent repo root after .env is populated.
+
+services:
+  bot:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: revenant-bot:latest
+    env_file:
+      - ../../.env
+    container_name: revbot-${BOT_ID:-handoff-full}
+    environment:
+      - BOT_ID=${BOT_ID:-handoff-full}
+      - PROXY_URL=${PROXY_URL}
+      - ACCOUNT_USER=${ACCOUNT_USER}
+      - ACCOUNT_PASS=${ACCOUNT_PASS}
+      - SERVER_ADDR=${SERVER_ADDR:-oldschool120.runescape.com:43594}
+      - BOT_TASK=${BOT_TASK:-revenant}
+      - CLIENT_REVISION=${CLIENT_REVISION:-239}
+      - RSA_MODULUS=${RSA_MODULUS}
+      - RSA_EXPONENT=${RSA_EXPONENT:-65537}
+      - CLIENT_ARCHIVE_CRCS=${CLIENT_ARCHIVE_CRCS}
+      - CLIENT_TOKEN=${CLIENT_TOKEN}
+      - GAME_SESSION_TOKEN=${GAME_SESSION_TOKEN}
+      - MACHINE_INFO_HEX=${MACHINE_INFO_HEX}
+      - PLATFORM_INFO_HEX=${PLATFORM_INFO_HEX}
+      - RSA_PLAINTEXT_HEX=${RSA_PLAINTEXT_HEX}
+      - DEVICE_ID=${DEVICE_ID:-0}
+      - REQUIRE_CAPTURED_MACHINE_INFO=${REQUIRE_CAPTURED_MACHINE_INFO:-1}
+      - MINT_PK_JIT=${MINT_PK_JIT:-0}
+      - RUNELITE_CREDENTIALS=${RUNELITE_CREDENTIALS:-}
+    restart: always
+    mem_limit: 128m
+    labels:
+      com.revbot.handoff: "env-full-docker"
+      com.revbot.pattern: "C"

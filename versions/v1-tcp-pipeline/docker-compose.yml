@@ -1,0 +1,31 @@
+# TCP handoff pattern — bot listens; Windows JVM pushes session on wire-block.
+# Run from parent repo root: docker compose -f OAuthIdp_SessionJagex/tcp-pipeline/docker-compose.yml up --build
+
+services:
+  bot:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: revenant-bot:latest
+    env_file:
+      - .env
+    container_name: revbot-${BOT_ID:-handoff-tcp}
+    environment:
+      - BOT_ID=${BOT_ID:-handoff-tcp}
+      - PROXY_URL=${PROXY_URL}
+      - ACCOUNT_USER=${ACCOUNT_USER}
+      - ACCOUNT_PASS=${ACCOUNT_PASS}
+      - SERVER_ADDR=${SERVER_ADDR:-oldschool120.runescape.com:43594}
+      - BOT_TASK=${BOT_TASK:-revenant}
+      - CLIENT_REVISION=${CLIENT_REVISION:-239}
+      - RSA_MODULUS=${RSA_MODULUS}
+      - RSA_EXPONENT=${RSA_EXPONENT:-65537}
+      - CLIENT_ARCHIVE_CRCS=${CLIENT_ARCHIVE_CRCS}
+      # Hot path: NOT from .env — filled by TCP handoff at runtime
+      - HANDOFF_LISTEN=:17494
+      - HANDOFF_WAIT_SEC=${HANDOFF_WAIT_SEC:-900}
+      - REQUIRE_CAPTURED_MACHINE_INFO=1
+    ports:
+      - "${HANDOFF_PORT:-17494}:17494"
+    restart: "no"
+    mem_limit: 128m

@@ -1,0 +1,17 @@
+# .env file handoff — bot reads tokens from .env updated after capture deploy.
+# Run from parent repo root after pull-capture-and-deploy.ps1
+
+services:
+  bot:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: revenant-bot:latest
+    env_file:
+      - ../../.env
+    container_name: revbot-${BOT_ID:-handoff-env}
+    environment:
+      - BOT_ID=${BOT_ID:-handoff-env}
+      - REQUIRE_CAPTURED_MACHINE_INFO=${REQUIRE_CAPTURED_MACHINE_INFO:-1}
+    restart: always
+    mem_limit: 128m

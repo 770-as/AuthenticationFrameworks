@@ -1,0 +1,17 @@
+FAILURE-LOG.md
+OPEN-ISSUES.md
+README.md
+runbook.ps1
+STATUS.md
+project\cmd\loginsim\main.go
+project\internal\network\gamesession.go
+project\internal\network\handoff.go
+project\internal\network\login.go
+project\internal\network\login_audit.go
+project\tools\agent\capture-no-mitm.ps1
+project\tools\agent\refresh-credentials.ps1
+project\tools\agent\loginhook\LoginDumpAgent.java
+project\tools\agent\loginhook\LoginDumpHook.java
+project\tools\agent\netns-capture\capture-netns.ps1
+project\tools\agent\netns-capture\windows-netgate.ps1
+project\tools\agent\vm-capture\capture-on-host.ps1

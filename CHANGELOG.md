@@ -14,20 +14,22 @@ Wire-block succeeded at 0.0s but `loginsim` still ran JS5 revision check + CRC f
 | `tools/agent/refresh-credentials.ps1` | `-QuickReplay` passes `-login-only -replay-capture`; propagates loginsim exit code |
 | `tools/agent/capture-no-mitm.ps1` | Fixed false "login accepted" on failure; ASCII strings (no Unicode em-dash parse errors) |
 
-### Capture command (run from repo root)
+## v3 — ViaNetgate + mint-replay (2026-07-05)
 
-```powershell
-cd C:\Users\shmou\bot-farm-headless\frm_headless
-powershell -File tools\agent\netns-capture\capture-netns.ps1 -InstantReplay -NoDeploy -WaitMin 15
-```
+| Component | Change |
+|-----------|--------|
+| `refresh-credentials.ps1` | `-ViaNetgate` → `loginsim -no-proxy` (same OS path as RuneLite via netgate) |
+| `internal/network/login.go` | `PatchRSAPlaintextGameSessionToken()` |
+| `cmd/loginsim` | `-mint-replay` — mint fresh pk + captured XTEA zone |
 
-### Expected output after wire-block
+### Outcomes documented in [versions/](versions/)
 
-```
-[refresh] QuickReplay: skipping framedump/logindiff ...
-[login-only] skipping JS5/CRC/frame diagnostics (pk is short-lived)
-      LOGIN RESULT: success, player index ...
-```
+| Version | Strategy | Result |
+|---------|----------|--------|
+| v4 | Replay captured pk | FAILED code 10 @ 0.1s |
+| v5 | Mint fresh pk + captured frame | Mint OK, login FAILED code 10 |
+
+See `versions/v5-mint-replay-via-netgate/OPEN-ISSUES.md` for next steps.
 
 ## v1 — Initial three patterns (2026-07-04)
 

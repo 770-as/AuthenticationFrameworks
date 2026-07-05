@@ -103,4 +103,5 @@ powershell -File OAuthIdp_SessionJagex\env-file\runbook.ps1 -DockerUp -WaitMin 1
 ## Related
 
 - [AuthenticationFrameworks on GitHub](https://github.com/770-as/AuthenticationFrameworks)
-- Parent repo: `frm_headless` — `tools/agent/`, `internal/network/`, `cmd/loginsim`
+- **[versions/](versions/)** — five frozen snapshots with project file copies (v1–v5) for comparison
+- Parent repo: `frm_headless` — live code in `tools/agent/`, `internal/network/`, `cmd/loginsim`

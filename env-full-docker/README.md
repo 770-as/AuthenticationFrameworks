@@ -30,8 +30,11 @@ Uses same scripts as Pattern B plus explicit compose mapping (this folder's `doc
 ## Quick start
 
 ```powershell
+cd C:\Users\shmou\bot-farm-headless\frm_headless
 powershell -File OAuthIdp_SessionJagex\env-full-docker\runbook.ps1 -DockerUp -WaitMin 15
 ```
+
+For pk-sensitive validation, run [instant-replay](../instant-replay/) first (v2 `-login-only` path).
 
 ## Guard rails
 

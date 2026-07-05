@@ -10,7 +10,8 @@ $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $repo
 
 Write-Host "=== Pattern B: .env File Handoff ===" -ForegroundColor Cyan
-Write-Host "Capture → capture-out → .env → docker compose"
+Write-Host "Repo root: $repo"
+Write-Host "Capture -> capture-out -> .env -> docker compose"
 Write-Host ""
 
 $capArgs = @("-File", "tools\agent\netns-capture\capture-netns.ps1", "-NoDeploy", "-WaitMin", $WaitMin)

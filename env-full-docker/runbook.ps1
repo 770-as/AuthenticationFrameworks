@@ -10,6 +10,7 @@ $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $repo
 
 Write-Host "=== Pattern C: .env + Full Docker Environment ===" -ForegroundColor Cyan
+Write-Host "Repo root: $repo"
 Write-Host "All login vars explicit in compose environment block"
 Write-Host ""
 

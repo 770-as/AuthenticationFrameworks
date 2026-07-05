@@ -9,9 +9,10 @@ $repo = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
 Set-Location $repo
 
 Write-Host "=== Pattern A: TCP Pipeline ===" -ForegroundColor Cyan
-Write-Host "1. Ensure docker compose is listening (HANDOFF_LISTEN=:17494)"
-Write-Host "2. Rebuild JVM agent"
-Write-Host "3. Capture with -InstantReplay (wire-block + TCP push)"
+Write-Host "Repo root: $repo"
+Write-Host "1. Run instant-replay first (optional but recommended)"
+Write-Host "2. Ensure docker compose is listening (HANDOFF_LISTEN=:17494)"
+Write-Host "3. Rebuild JVM agent + capture with -InstantReplay"
 Write-Host ""
 
 if (-not $SkipDocker) {

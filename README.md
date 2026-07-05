@@ -1,8 +1,20 @@
 # OAuthIdp Session Jagex — Host-to-Container Login Handoff
 
-Three reference patterns for moving Jagex login state from a **Windows RuneLite capture** (JVM agent + wire-block) to a **headless Go bot in Docker**.
+Reference patterns for moving Jagex login state from a **Windows RuneLite capture** (JVM agent + wire-block) to a **headless Go bot in Docker**.
 
-Parent implementation: [frm_headless](https://github.com/770-as/AuthenticationFrameworks) bot-farm (OSRS protocol client).
+Parent implementation lives in `frm_headless` (OSRS protocol client). This repo documents handoff patterns only.
+
+**Latest:** [CHANGELOG.md](CHANGELOG.md) — v2 adds `-login-only` instant replay (fixes code 10 from JS5/CRC delay).
+
+## Run from repo root
+
+All commands assume:
+
+```powershell
+cd C:\Users\shmou\bot-farm-headless\frm_headless
+```
+
+Running from `C:\Users\shmou` will fail with "File does not exist".
 
 ## The problem
 
@@ -16,13 +28,20 @@ Jagex account login uses short-lived tokens:
 
 Capture runs on **Windows** (RuneLite + JVM agent). The bot runs in **Linux Docker**. Something must bridge that gap.
 
-## Three patterns (this repo)
+## Four patterns (this repo)
 
-| Folder | Handoff mechanism | Latency | Automation | Best for |
-|--------|-------------------|---------|------------|----------|
-| [`tcp-pipeline/`](tcp-pipeline/) | Live TCP JSON push (port 17494) | ~1–5 ms | High — bot listens, JVM pushes on wire-block | Production farm, pk expiry critical |
-| [`env-file/`](env-file/) | Host `.env` updated from capture files | 30–90 s if manual | Medium — scripted deploy | Dev / batch re-capture |
-| [`env-full-docker/`](env-full-docker/) | Full env injection via `docker-compose` + `env_file` | Same as env-file | Low — all vars in compose | Legacy / explicit config |
+| Folder | Handoff mechanism | Latency | Best for |
+|--------|-------------------|---------|----------|
+| [`instant-replay/`](instant-replay/) | Host-only: wire-block + `loginsim -login-only` | ~1–2 s | **Validate capture first** (no Docker) |
+| [`tcp-pipeline/`](tcp-pipeline/) | Live TCP JSON push (port 17494) | ~2–5 s | Production farm, pk expiry critical |
+| [`env-file/`](env-file/) | Host `.env` updated from capture files | 30–90 s | Dev / batch re-capture |
+| [`env-full-docker/`](env-full-docker/) | Full env injection via compose + `env_file` | Same as env-file | Ops / CI / explicit config |
+
+## Recommended order
+
+1. **instant-replay** — prove wire-block + pk replay on host
+2. **tcp-pipeline** — production hot path to Docker
+3. **env-file** or **env-full-docker** — batch deploy after validated capture
 
 ## Shared capture prerequisites (all patterns)
 
@@ -34,13 +53,24 @@ Capture runs on **Windows** (RuneLite + JVM agent). The bot runs in **Linux Dock
    - `rsa_plaintext.txt` — RSA block + pk + XTEA seeds
    - `login_wire_blocked.txt` — proof pk was not burned
 
+## v2 instant replay fix
+
+Full `loginsim` runs JS5 + CRC probes before login (~3–10 s) and burns `pk`. Instant replay now uses:
+
+```
+loginsim -login-only -replay-capture -capture-file login_frame.txt
+```
+
+Triggered automatically by `-InstantReplay -QuickReplay` in capture scripts.
+
 ## Architecture overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  WINDOWS HOST                                               │
 │  Jagex Launcher → RuneLite → JVM Agent (wire-block)         │
-│  windows-netgate → PROXY_URL (Marseille)                    │
+│  windows-netgate → PROXY_URL                                │
+│  instant-replay: loginsim -login-only (host validation)     │
 └──────────────────────────┬──────────────────────────────────┘
                            │
          ┌─────────────────┼─────────────────┐
@@ -55,13 +85,22 @@ Capture runs on **Windows** (RuneLite + JVM agent). The bot runs in **Linux Dock
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Choosing a pattern
+## Quick start (full path)
 
-- **Use tcp-pipeline** when pk expiry causes code 10 and you need sub-second handoff.
-- **Use env-file** when you capture in batch and deploy minutes later (tokens may be stale).
-- **Use env-full-docker** when you want every variable visible in compose for ops/debugging.
+```powershell
+cd C:\Users\shmou\bot-farm-headless\frm_headless
 
-## Related docs
+# Step 1: validate on host
+powershell -File OAuthIdp_SessionJagex\instant-replay\runbook.ps1 -WaitMin 15
 
-- [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) — capture vs runtime split (parent repo)
+# Step 2a: TCP handoff to Docker (production)
+powershell -File OAuthIdp_SessionJagex\tcp-pipeline\runbook.ps1 -WaitMin 15
+
+# Step 2b: OR .env deploy (batch)
+powershell -File OAuthIdp_SessionJagex\env-file\runbook.ps1 -DockerUp -WaitMin 15
+```
+
+## Related
+
 - [AuthenticationFrameworks on GitHub](https://github.com/770-as/AuthenticationFrameworks)
+- Parent repo: `frm_headless` — `tools/agent/`, `internal/network/`, `cmd/loginsim`

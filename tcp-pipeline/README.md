@@ -47,7 +47,13 @@ Zero-file hot path: JVM agent pushes session JSON to a bot listening inside Dock
 ## Quick start
 
 ```powershell
-# Terminal 1 — bot listener (from parent repo root)
+# From parent repo root (frm_headless) — NOT from C:\Users\shmou
+cd C:\Users\shmou\bot-farm-headless\frm_headless
+
+# Optional: validate capture on host first (Pattern 0)
+powershell -File OAuthIdp_SessionJagex\instant-replay\runbook.ps1 -WaitMin 15
+
+# Terminal 1 — bot listener
 $env:HANDOFF_LISTEN = ":17494"
 $env:REQUIRE_CAPTURED_MACHINE_INFO = "1"
 docker compose -f OAuthIdp_SessionJagex/tcp-pipeline/docker-compose.yml up --build
@@ -56,6 +62,8 @@ docker compose -f OAuthIdp_SessionJagex/tcp-pipeline/docker-compose.yml up --bui
 powershell -File tools\agent\build.ps1
 powershell -File tools\agent\netns-capture\capture-netns.ps1 -InstantReplay -NoDeploy -WaitMin 15
 ```
+
+Host capture uses `loginsim -login-only` (v2) when `-InstantReplay` validates before Docker handoff.
 
 ## Guard rails
 

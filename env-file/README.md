@@ -22,13 +22,21 @@ Classic path: JVM agent writes capture files on Windows host; a script parses th
 | docker compose up | 5–30 s |
 | **Total** | **30–90+ s** → pk often **expired (code 10)** |
 
-## Mitigation (parent repo)
+## Mitigation (parent repo, v2)
 
-Use `-QuickReplay` on host first to validate capture, then deploy:
+`-InstantReplay -QuickReplay` runs `loginsim -login-only -replay-capture` (skips JS5/CRC that burn pk).
+
+Validate on host first:
+
+```powershell
+cd C:\Users\shmou\bot-farm-headless\frm_headless
+powershell -File OAuthIdp_SessionJagex\instant-replay\runbook.ps1 -WaitMin 15
+```
+
+Then deploy to `.env`:
 
 ```powershell
 powershell -File tools\agent\vm-capture\pull-capture-and-deploy.ps1 -NoDocker
-# After success:
 docker compose -f OAuthIdp_SessionJagex/env-file/docker-compose.yml up --build
 ```
 
